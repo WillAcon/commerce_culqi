@@ -1,6 +1,6 @@
 /**
  * @file
- * Javascript to generate Stripe token in PCI-compliant way.
+ * Javascript to generate Culqi token in PCI-compliant way.
  */
 
 (function ($, Drupal, drupalSettings) {
@@ -8,160 +8,220 @@
   'use strict';
 
   /**
-   * Attaches the commerceStripeForm behavior.
+   * Attaches the commerceCulqiForm behavior.
    *
    * @type {Drupal~behavior}
    *
    * @prop object cardNumber
-   *   Stripe card number element.
+   *   Culqi card number element.
    * @prop object cardExpiry
-   *   Stripe card expiry element.
+   *   Culqi card expiry element.
    * @prop object cardCvc
-   *   Stripe card cvc element.
+   *   Culqi card cvc element.
    * @prop {Drupal~behaviorAttach} attach
-   *   Attaches the commerceStripeForm behavior.
+   *   Attaches the commerceCulqiForm behavior.
    * @prop {Drupal~behaviorDetach} detach
-   *   Detaches the commerceStripeForm behavior.
+   *   Detaches the commerceCulqiForm behavior.
    *
-   * @see Drupal.commerceStripe
+   * @see Drupal.commerceCulqi
    */
-  Drupal.behaviors.commerceStripeForm = {
+
+  Drupal.behaviors.commerceCulqiForm = {
     cardNumber: null,
     cardExpiry: null,
     cardCvc: null,
 
+    anotherFunction: function() {
+      console.log("funcion---");
+    },
+
     attach: function (context) {
       var self = this;
-      if (!drupalSettings.commerceStripe || !drupalSettings.commerceStripe.publishableKey) {
+      if (!drupalSettings.commerceCulqi || !drupalSettings.commerceCulqi.publishableKey) {
         return;
       }
-      $('.culqi-form', context).once('culqi-processed').each(function () {
-        var $form = $(this).closest('form');
 
-        // Clear the token every time the payment form is loaded. We only need the token
-        // one time, as it is submitted to Stripe after a card is validated. If this
-        // form reloads it's due to an error; received tokens are stored in the checkout pane.
-        $('#culqi_token', $form).val('');
+       var url_post = drupalSettings.commerceCulqi.url_post;
+       Culqi.publicKey = drupalSettings.commerceCulqi.publishableKey;
+       var amount =  drupalSettings.commerceCulqi.amount;
 
-        // Create a Stripe client.
-        /* global Stripe */
-        var culqi = Stripe(drupalSettings.commerceStripe.publishableKey);
-
-        // Create an instance of Stripe Elements.
-        var elements = culqi.elements();
-        var classes = {
-          base: 'form-text',
-          invalid: 'error'
-        };
-        // Create instances of the card elements.
-        self.cardNumber = elements.create('cardNumber', {
-          classes: classes
-        });
-        self.cardExpiry = elements.create('cardExpiry', {
-          classes: classes
-        });
-        self.cardCvc = elements.create('cardCvc', {
-          classes: classes
-        });
-        // Add an instance of the card UI components into the "scard-element" element <div>
-        self.cardNumber.mount('#card-number-element');
-        self.cardExpiry.mount('#expiration-element');
-        self.cardCvc.mount('#security-code-element');
-
-        // Input validation.
-        self.cardNumber.on('change', function (event) {
-          culqiErrorHandler(event);
-        });
-        self.cardExpiry.on('change', function (event) {
-          culqiErrorHandler(event);
-        });
-        self.cardCvc.on('change', function (event) {
-          culqiErrorHandler(event);
+       Culqi.settings({
+            title: drupalSettings.commerceCulqi.title,
+            currency: drupalSettings.commerceCulqi.currency,
+            description: drupalSettings.commerceCulqi.description,
+            amount: drupalSettings.commerceCulqi.amount,
+            parame_id:"33333"
         });
 
-        // Insert the token ID into the form so it gets submitted to the server
-        var culqiTokenHandler = function (token) {
-          // Set the Stripe token value.
-          $('#culqi_token', $form).val(token.id);
-
-          // Submit the form.
-          $form.get(0).submit();
-        };
-
-        // Helper to handle the Stripe responses with errors.
-        var culqiErrorHandler = function (result) {
-          if (result.error) {
-            // Inform the user if there was an error.
-            culqiErrorDisplay(result.error.message);
-          }
-          else {
-            // Clean up error messages.
-            $form.find('#payment-errors').html('');
-          }
-        };
-
-        // Helper for displaying the error messages within the form.
-        var culqiErrorDisplay = function (error_message) {
-          // Display the message error in the payment form.
-          $form.find('#payment-errors').html(Drupal.theme('commerceStripeError', error_message));
-
-          // Allow the customer to re-submit the form.
-          $form.find('button').prop('disabled', false);
-        };
-
-        // Create a Stripe token and submit the form or display an error.
-        var culqiCreateToken = function () {
-          culqi.createToken(self.cardNumber).then(function (result) {
-            if (result.error) {
-              // Inform the user if there was an error.
-              culqiErrorDisplay(result.error.message);
-            }
-            else {
-              // Send the token to your server.
-              culqiTokenHandler(result.token);
-            }
-          });
-        };
-
-        // Form submit.
-        $form.on('submit.commerce_culqi', function (e) {
-          // Disable the submit button to prevent repeated clicks.
-          $form.find('button').prop('disabled', true);
-
-          // Try to create the Stripe token and submit the form.
-          culqiCreateToken();
-
-          // Prevent the form from submitting with the default action.
-          if ($('#card-number-element', $form).length) {
-            return false;
-          }
-        });
+       $('.payment-culqi').on('click', function (e) {
+         
+         Culqi.open();
+         e.preventDefault();
       });
+
+       function culqi() {
+        console.log("load culqi fun xxxxxxxxx");
+
+        $(document).ajaxStart(function(){
+              run_waitMe();
+        });
+
+        if (Culqi.token) { // ¡Token creado exitosamente!
+            // Get the token ID:
+            var token = Culqi.token.id;
+            console.log("Culqi", Culqi);
+
+             // var url = "/commerce_culqi/dummy_redirect_post?_format_json";
+        
+             var  data = {
+                    "source_id": Culqi.token.id,
+                    "amount": drupalSettings.commerceCulqi.amount,
+                    "currency_code": drupalSettings.commerceCulqi.currency,
+                    "email": Culqi.token.email
+                  };
+
+                jQuery.post(url_post, data).done(function(response){
+                      console.log(response);
+                      $('body').waitMe('hide');
+                });
+
+
+            // $.ajax({
+            //     url: url_post,
+            //     data: JSON.stringify({
+            //         "source_id": Culqi.token.id,
+            //         "amount": drupalSettings.commerceCulqi.amount,
+            //         "currency_code": drupalSettings.commerceCulqi.currency,
+            //         "email": Culqi.token.email
+            //     }),
+            //     contentType: "application/json",
+            //     headers: {
+            //         "Accept": "application/json",
+            //     },
+            //     error: function (err) {
+            //         alert('Lo sentimos, a ocurrido un error');
+            //     },
+            //     dataType: 'json',
+            //     success: function (data) {
+            //         console.log("data", data);
+            //         // alert("pago exitoso")
+            //     },
+            //     type: 'POST'
+            // });
+
+           /* $.ajax({
+                url: 'https://api.culqi.com/v2/charges',
+                data: JSON.stringify({
+                    "source_id": Culqi.token.id,
+                    "amount": 3500,
+                    "currency_code": "PEN",
+                    "email": Culqi.token.email
+                }),
+                contentType: "application/json",
+                headers: {
+                    "Accept": "application/json",
+                    "authorization": "Bearer sk_test_zSx3B7eZVHivsFQy"
+                },
+                error: function (err) {
+                    alert('Lo sentimos, a ocurrido un error');
+                },
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    alert("pago exitoso")
+                },
+                type: 'POST'
+            });*/
+
+        } else { // ¡Hubo algún problema!
+            // Mostramos JSON de objeto error en consola
+            console.log(Culqi.error);
+            alert(Culqi.error.mensaje);
+        }
+    };
+
+    // function demouno(){
+
+    //   console.log("Culqi",Culqi);
+    // }
+
+     window.culqi = culqi;
+
+
+     
     },
 
     detach: function (context, settings, trigger) {
-      if (trigger !== 'unload') {
-        return;
-      }
-      var self = this;
-      ['cardNumber', 'cardExpiry', 'cardCvc'].forEach(function (i) {
-        if (self[i] && self[i].length > 0) {
-          self[i].unmount();
-          self[i] = null;
-        }
-      });
-      var $form = $('.culqi-form', context).closest('form');
-      if ($form.length === 0) {
-        return;
-      }
-      $form.off('submit.commerce_culqi');
+      // if (trigger !== 'unload') {
+      //   return;
+      // }
+      // var self = this;
+      // ['cardNumber', 'cardExpiry', 'cardCvc'].forEach(function (i) {
+      //   if (self[i] && self[i].length > 0) {
+      //     self[i].unmount();
+      //     self[i] = null;
+      //   }
+      // });
+      // var $form = $('.Culqi-form', context).closest('form');
+      // if ($form.length === 0) {
+      //   return;
+      // }
+      // $form.off('submit.commerce_Culqi');
     }
   };
 
   $.extend(Drupal.theme, /** @lends Drupal.theme */{
-    commerceStripeError: function (message) {
+    commerceCulqiError: function (message) {
       return $('<div class="messages messages--error"></div>').html(message);
     }
   });
 
 })(jQuery, Drupal, drupalSettings);
+
+
+function run_waitMe(message){
+      jQuery('body').waitMe({
+        effect: 'orbit',
+        text: message ? message : 'Procesando pago...',
+        bg: 'rgba(255,255,255,0.7)',
+        color:'#28d2c8'
+      });
+}
+
+
+// function culqi(){
+
+//   console.log("Culqi",Culqi);
+// }
+
+//  jQuery.ajax({
+//                 url: "/commerce_culqi/dummy_redirect_post",
+//                 data: {
+//                     "source_id": "dddd",
+//                     "amount": 3500,
+//                     "currency_code": "PEN",
+//                     "email": "emqil"
+//                 },
+//                 contentType: "application/json",
+//                 headers: {
+//                     "Accept": "application/json",
+//                 },
+//                 error: function (err) {
+//                     alert('Lo sentimos, a ocurrido un error');
+//                 },
+//                 dataType: 'json',
+//                 success: function (data) {
+//                     console.log(data);
+// //                     alert("pago exitoso")
+//                 },
+//                 type: 'POST'
+//             });
+
+
+ // jQuery(document).ajaxStart(function(){
+ //            run_waitMe();
+ //          });
+
+ //                jQuery(".cancel-pay-culqi").click(function(){
+ //        run_waitMe('Cancelando...');
+ //      });

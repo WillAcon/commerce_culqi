@@ -24,7 +24,7 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
     $publishable_key = $payment_gateway_plugin->getConfiguration()['publishable_key'];
     $secret_key = $payment_gateway_plugin->getConfiguration()['secret_key'];
 
-    ksm($payment_gateway_plugin->getConfiguration());
+    // ksm($payment_gateway_plugin->getConfiguration());
 
     // $redirect_method = $payment_gateway_plugin->getConfiguration()['redirect_method'];
     // $remove_js = ($redirect_method == 'post_manual');
@@ -56,7 +56,11 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
       'total' => $payment->getAmount()->getNumber(),
     ];
 
-    ksm($data);
+    $order = $payment->getOrder();
+    $redirect_url = Url::fromRoute('commerce_culqi.dummy_redirect_post')->toString();
+    ksm($redirect_url);
+
+
     
 
     $form = $this->buildRedirectForm($form, $form_state, $redirect_url, $data, $redirect_method);
@@ -66,7 +70,28 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
       unset($form['#attached']['library']);
     }
 
-    return $form;
+    $order_id = $order->id();
+    // $url_return = $form['#return_url'];
+    // ksm($order_id);
+    $message = '<a class="button is-primary payment-culqi">Pagar ahora</a>';
+    $message .= "<a href='/checkout/$order_id/review'>Regresar</a>";
+    // $message .= "<a href='$url_return'>Regresar</a>";
+
+    $element = array();
+    $element['#attached']['library'][] = 'commerce_culqi/form';
+    $element['#attached']['drupalSettings']['commerceCulqi'] = [
+      'publishableKey' => $publishable_key,
+      'title' => \Drupal::config('system.site')->get('name'),
+      'currency' => $payment->getAmount()->getCurrencyCode(),
+      'description' => t('Order')." #".$order_id,
+      'amount'=> ($payment->getAmount()->getNumber()*100),
+      'url_post' => $redirect_url
+    ];
+    $element['#markup'] = $message;
+
+    return $element;
+
+    // return $form;
   }
 
 }
