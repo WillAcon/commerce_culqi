@@ -2,18 +2,18 @@
 
 /**
  * @file
- * Contains install and update functions for Commerce Stripe.
+ * Contains install and update functions for Commerce Culqi.
  */
 
 /**
  * Implements hook_requirements().
  */
-function commerce_stripe_requirements($phase) {
+function commerce_culqi_requirements($phase) {
   $requirements = [];
   if ($phase == 'install') {
-    if (!class_exists('\Stripe\Stripe')) {
-      $requirements['commerce_stripe_library'] = [
-        'description' => t('Commerce Stripe requires the stripe/stripe-php library.'),
+    if (!class_exists('\Culqi\Culqi')) {
+      $requirements['commerce_culqi_library'] = [
+        'description' => t('Commerce Culqi requires the culqi/culqi-php library.'),
         'severity' => REQUIREMENT_ERROR,
       ];
     }

@@ -1,23 +1,23 @@
-stripe:
-  remote: https://github.com/stripe/stripe-php
-  version: "4.3.0"
+culqi:
+  remote: https://github.com/culqi/culqi-php
+  version: "1.3.3"
   license:
     name: MIT
-    url: https://github.com/stripe/stripe-php/blob/master/LICENSE
+    url: https://github.com/culqi/culqi-php/blob/master/LICENSE.md
     gpl-compatible: true
   js:
-    "https://js.stripe.com/v3/": { minified: true }
+    "https://checkout.culqi.com/v2/": { minified: true }
 
 form:
   version: VERSION
   css:
     theme:
-      css/commerce_stripe.form.css: {}
+      css/commerce_culqi.form.css: {}
   js:
-    js/commerce_stripe.form.js: {}
+    js/commerce_culqi.form.js: {}
   dependencies:
     - classy/messages
     - core/jquery
     - core/drupal
     - core/jquery.once
-    - commerce_stripe/stripe
+    - commerce_culqi/culqi

@@ -35,20 +35,20 @@
       if (!drupalSettings.commerceStripe || !drupalSettings.commerceStripe.publishableKey) {
         return;
       }
-      $('.stripe-form', context).once('stripe-processed').each(function () {
+      $('.culqi-form', context).once('culqi-processed').each(function () {
         var $form = $(this).closest('form');
 
         // Clear the token every time the payment form is loaded. We only need the token
         // one time, as it is submitted to Stripe after a card is validated. If this
         // form reloads it's due to an error; received tokens are stored in the checkout pane.
-        $('#stripe_token', $form).val('');
+        $('#culqi_token', $form).val('');
 
         // Create a Stripe client.
         /* global Stripe */
-        var stripe = Stripe(drupalSettings.commerceStripe.publishableKey);
+        var culqi = Stripe(drupalSettings.commerceStripe.publishableKey);
 
         // Create an instance of Stripe Elements.
-        var elements = stripe.elements();
+        var elements = culqi.elements();
         var classes = {
           base: 'form-text',
           invalid: 'error'
@@ -70,29 +70,29 @@
 
         // Input validation.
         self.cardNumber.on('change', function (event) {
-          stripeErrorHandler(event);
+          culqiErrorHandler(event);
         });
         self.cardExpiry.on('change', function (event) {
-          stripeErrorHandler(event);
+          culqiErrorHandler(event);
         });
         self.cardCvc.on('change', function (event) {
-          stripeErrorHandler(event);
+          culqiErrorHandler(event);
         });
 
         // Insert the token ID into the form so it gets submitted to the server
-        var stripeTokenHandler = function (token) {
+        var culqiTokenHandler = function (token) {
           // Set the Stripe token value.
-          $('#stripe_token', $form).val(token.id);
+          $('#culqi_token', $form).val(token.id);
 
           // Submit the form.
           $form.get(0).submit();
         };
 
         // Helper to handle the Stripe responses with errors.
-        var stripeErrorHandler = function (result) {
+        var culqiErrorHandler = function (result) {
           if (result.error) {
             // Inform the user if there was an error.
-            stripeErrorDisplay(result.error.message);
+            culqiErrorDisplay(result.error.message);
           }
           else {
             // Clean up error messages.
@@ -101,7 +101,7 @@
         };
 
         // Helper for displaying the error messages within the form.
-        var stripeErrorDisplay = function (error_message) {
+        var culqiErrorDisplay = function (error_message) {
           // Display the message error in the payment form.
           $form.find('#payment-errors').html(Drupal.theme('commerceStripeError', error_message));
 
@@ -110,26 +110,26 @@
         };
 
         // Create a Stripe token and submit the form or display an error.
-        var stripeCreateToken = function () {
-          stripe.createToken(self.cardNumber).then(function (result) {
+        var culqiCreateToken = function () {
+          culqi.createToken(self.cardNumber).then(function (result) {
             if (result.error) {
               // Inform the user if there was an error.
-              stripeErrorDisplay(result.error.message);
+              culqiErrorDisplay(result.error.message);
             }
             else {
               // Send the token to your server.
-              stripeTokenHandler(result.token);
+              culqiTokenHandler(result.token);
             }
           });
         };
 
         // Form submit.
-        $form.on('submit.commerce_stripe', function (e) {
+        $form.on('submit.commerce_culqi', function (e) {
           // Disable the submit button to prevent repeated clicks.
           $form.find('button').prop('disabled', true);
 
           // Try to create the Stripe token and submit the form.
-          stripeCreateToken();
+          culqiCreateToken();
 
           // Prevent the form from submitting with the default action.
           if ($('#card-number-element', $form).length) {
@@ -150,11 +150,11 @@
           self[i] = null;
         }
       });
-      var $form = $('.stripe-form', context).closest('form');
+      var $form = $('.culqi-form', context).closest('form');
       if ($form.length === 0) {
         return;
       }
-      $form.off('submit.commerce_stripe');
+      $form.off('submit.commerce_culqi');
     }
   };
 
