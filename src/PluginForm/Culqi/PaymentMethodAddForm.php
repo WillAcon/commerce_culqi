@@ -31,10 +31,26 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
      $redirect_method = 'post_manual';
      $remove_js = ($redirect_method == 'post_manual');
 
+
+
+
+/*
+     $order_id=42;
+// $order = \Drupal\commerce_order\Entity\Order::load($order_id);
+  $order = \Drupal\commerce_order\Entity\Order::load($order_id);
+
+ $payment_gateway = $order->get('payment_gateway')->entity;
+
+
+*/
+
+/*
     if (in_array($redirect_method, ['post', 'post_manual'])) {
       $redirect_url = Url::fromRoute('commerce_culqi.dummy_redirect_post')->toString();
       $redirect_method = 'post';
     }
+
+    */
   /*  else {
       // Gateways that use the GET redirect method usually perform an API call
       // that prepares the remote payment and provides the actual url to
@@ -57,13 +73,13 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
     ];
 
     $order = $payment->getOrder();
-    $redirect_url = Url::fromRoute('commerce_culqi.dummy_redirect_post')->toString();
-    ksm($redirect_url);
+    // $redirect_url = Url::fromRoute('commerce_culqi.dummy_redirect_post')->toString();
+    // ksm($redirect_url);
 
 
     
 
-    $form = $this->buildRedirectForm($form, $form_state, $redirect_url, $data, $redirect_method);
+    // $form = $this->buildRedirectForm($form, $form_state, $redirect_url, $data, $redirect_method);
     // ksm($form);
     if ($remove_js) {
       // Disable the javascript that auto-clicks the Submit button.
@@ -85,7 +101,7 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
       'currency' => $payment->getAmount()->getCurrencyCode(),
       'description' => t('Order')." #".$order_id,
       'amount'=> ($payment->getAmount()->getNumber()*100),
-      'url_post' => $redirect_url
+      'url_post' => "/commerce_culqi/dummy_redirect_post/42"
     ];
     $element['#markup'] = $message;
 

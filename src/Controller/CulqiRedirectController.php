@@ -12,9 +12,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Cache\CacheableMetadata;
 
+use Drupal\commerce_order\Entity\OrderInterface;
+use Drupal\commerce_paytrail\Plugin\Commerce\PaymentGateway\PaytrailBase;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\commerce_order\Entity\Order;
+define('RESPONSE_CULQI_SUCCESS', 'AUT0000');
 
 // use Drupal\Core\Controller\ControllerBase;
 // use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -68,6 +70,20 @@ class CulqiRedirectController implements ContainerInjectionInterface {
     return new JsonResponse( $data );
   }
 
+
+  /**
+   * {@inheritdoc}
+   */
+  
+ public function validate_charge($param): boolean {
+  if($param['outcome']->code) {
+    if($param['outcome']->code == RESPONSE_CULQI_SUCCESS) {
+      return true;
+    }
+  }
+  return false;
+ }
+
   /**
    * Callback method which accepts POST.
    *
@@ -77,16 +93,74 @@ class CulqiRedirectController implements ContainerInjectionInterface {
     // ksm( $this->currentRequest->request);
     // ksm( $this->currentRequest->request->all());
     // ksm( $this->currentRequest->request->get('source_id'));
+    // $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+    
+    // ksm($payment_storage);
+     ksm( $this->currentRequest->attributes->get('order'));
+     $response_data= [];
 
-    
-    
-    $response_data= [];
-    $response_data =  $this->currentRequest->request->all();//$this->currentRequest->request->parameters;//$_POST['email'];// $this->currentRequest->request->get('data');
+    if($this->currentRequest->attributes->get('order')){
+      $order_id = $this->currentRequest->attributes->get('order');
+      $order = Order::load($order_id);
+
+      if ($order->get('payment_gateway')->isEmpty()) {
+        return;
+      }
+      $payment = $order->get('payment_gateway')->entity;
+      $payment_configuration = $payment->get("configuration");
+      $secret_key = $payment_configuration['secret_key'];
+
+
+      $Culqi = new \Culqi\Culqi(array('api_key' => $secret_key));
+      $response_data =  $this->currentRequest->request->all();
+
+      $data = array(
+              "amount" => $response_data['amount'],
+              "capture" => true,
+              "currency_code" => $response_data['currency_code'],
+              "email" => $response_data['email'],
+              "source_id" => $response_data['source_id']
+          );
+
+       try {
+            // Creando Cargo a una tarjeta
+            $charge = $Culqi->Charges->create($data);
+
+            $param = (array)$charge;
+            // if($this.validate_charge($param)) {
+            //   $response_data['validate'] = "validate";
+            // }
+            $response_data['charge'] = $param;
+            // echo json_encode($charge);
+
+            // exit();
+
+          } catch (Exception $e) {
+            $response_data['error'] = $e->getMessage();
+          }
+
+
+      // $response_data['secret_key'] = $secret_key ;
+
+    }
+    else {
+      $response_data['privado'] = "sss";
+    }
+
+
+      $order_id=42;
+  
+
+
+
+
+    //$this->currentRequest->request->parameters;//$_POST['email'];// $this->currentRequest->request->get('data');
    
 
-    $Culqi = new \Culqi\Culqi(array('api_key' => 'sk_test_zSx3B7eZVHivsFQy'));
+    // $Culqi = new \Culqi\Culqi(array('api_key' => 'sk_test_zSx3B7eZVHivsFQy'));
 
-    ksm($Culqi);
+    //ksm($Culqi);
+  
 
    // Add the node_list cache tag so the endpoint results will update when nodes are
    // updated.

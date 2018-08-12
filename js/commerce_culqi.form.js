@@ -69,7 +69,7 @@
         if (Culqi.token) { // ¡Token creado exitosamente!
             // Get the token ID:
             var token = Culqi.token.id;
-            console.log("Culqi", Culqi);
+            // console.log("Culqi", Culqi);
 
              // var url = "/commerce_culqi/dummy_redirect_post?_format_json";
         
@@ -225,3 +225,19 @@ function run_waitMe(message){
  //                jQuery(".cancel-pay-culqi").click(function(){
  //        run_waitMe('Cancelando...');
  //      });
+
+
+
+
+
+          // var  data = {
+          //           "source_id": "ssss",
+          //           "amount": "ssss",
+          //           "currency_code": "ssss",
+          //           "email": "ssss",
+          //         };
+
+          //       jQuery.post(" /commerce_culqi/dummy_redirect_post", data).done(function(response){
+          //             console.log(response);
+          //             $('body').waitMe('hide');
+          //       });

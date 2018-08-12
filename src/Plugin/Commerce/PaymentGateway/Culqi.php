@@ -41,6 +41,10 @@ class Culqi extends OffsitePaymentGatewayBase  {
     return $this->configuration['publishable_key'];
   }
 
+  public function getPrivateKey() {
+    return $this->configuration['secret_key'];
+  }
+
   /**
    * {@inheritdoc}
    */
