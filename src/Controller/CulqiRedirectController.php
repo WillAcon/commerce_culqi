@@ -63,7 +63,7 @@ class CulqiRedirectController implements ContainerInjectionInterface {
       $data = json_decode( $request->getContent(), TRUE );
       // $request->request->replace( is_array( $data ) ? $data : [] );
     }
-
+ 
     // $response['data'] = $data;
     // $response['method'] = 'POST';
 
@@ -75,7 +75,7 @@ class CulqiRedirectController implements ContainerInjectionInterface {
    * {@inheritdoc}
    */
   
- public function validate_charge($param): boolean {
+ public function validate_charge($param) {
   if($param['outcome']->code) {
     if($param['outcome']->code == RESPONSE_CULQI_SUCCESS) {
       return true;
@@ -83,6 +83,27 @@ class CulqiRedirectController implements ContainerInjectionInterface {
   }
   return false;
  }
+
+/**
+ * Callback method which accepts POST.
+ *
+ * @throws \Drupal\commerce\Response\NeedsRedirectException
+ */
+public function post122() {
+
+  $param['outcome']->code = "AUT000011";
+
+$response_data['culqi'] = RESPONSE_CULQI_SUCCESS;
+   $response_data['demo'] = $this->validate_charge($param);
+ 
+
+     $response = new CacheableJsonResponse($response_data);
+   
+   // $response->addCacheableDependency($cache_metadata);
+
+   return $response;
+
+}
 
   /**
    * Callback method which accepts POST.
@@ -121,15 +142,18 @@ class CulqiRedirectController implements ContainerInjectionInterface {
               "email" => $response_data['email'],
               "source_id" => $response_data['source_id']
           );
-
+      $response_data['validate'] = false;
        try {
             // Creando Cargo a una tarjeta
             $charge = $Culqi->Charges->create($data);
 
             $param = (array)$charge;
-            // if($this.validate_charge($param)) {
-            //   $response_data['validate'] = "validate";
-            // }
+            if($this->validate_charge($param)) { //if charge created
+              $response_data['validate'] = true;
+            }else {
+              $response_data['validate'] = false;
+            }
+            
             $response_data['charge'] = $param;
             // echo json_encode($charge);
 
@@ -147,41 +171,16 @@ class CulqiRedirectController implements ContainerInjectionInterface {
       $response_data['privado'] = "sss";
     }
 
+    if(!$response_data['validate']) {
+       $response = new CacheableJsonResponse($response_data);
+       return $response; 
+    }
+    else {
+          $return = $this->currentRequest->request->get('return');
+          return new TrustedRedirectResponse($return);
+    }
+     
 
-      $order_id=42;
-  
-
-
-
-
-    //$this->currentRequest->request->parameters;//$_POST['email'];// $this->currentRequest->request->get('data');
-   
-
-    // $Culqi = new \Culqi\Culqi(array('api_key' => 'sk_test_zSx3B7eZVHivsFQy'));
-
-    //ksm($Culqi);
-  
-
-   // Add the node_list cache tag so the endpoint results will update when nodes are
-   // updated.
-   // $cache_metadata = new CacheableMetadata();
-   // $cache_metadata->setCacheTags(['node_list']);
-
-   // Create the JSON response object and add the cache metadata.
-   $response = new CacheableJsonResponse($response_data);
-   // $response->addCacheableDependency($cache_metadata);
-
-   return $response;
-
-    // $cancel = $this->currentRequest->request->get('cancel');
-    // $return = $this->currentRequest->request->get('return');
-    // $total = $this->currentRequest->request->get('total');
-
-    // if ($total > 20) {
-    //   return new TrustedRedirectResponse($return);
-    // }
-
-    // return new TrustedRedirectResponse($cancel);
   }
 
 

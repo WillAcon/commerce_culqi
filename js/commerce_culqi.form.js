@@ -77,7 +77,9 @@
                     "source_id": Culqi.token.id,
                     "amount": drupalSettings.commerceCulqi.amount,
                     "currency_code": drupalSettings.commerceCulqi.currency,
-                    "email": Culqi.token.email
+                    "email": Culqi.token.email,
+                    "return": drupalSettings.commerceCulqi.return,
+                    "client": drupalSettings.commerceCulqi.client
                   };
 
                 jQuery.post(url_post, data).done(function(response){

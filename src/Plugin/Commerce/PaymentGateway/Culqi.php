@@ -125,6 +125,8 @@ class Culqi extends OffsitePaymentGatewayBase  {
     $demo = array(1,2,3);
      ksm($demo);
 
+     ksm($request->query);
+
     $payment = $payment_storage->create([
       'state' => 'authorization',
       'amount' => $order->getTotalPrice(),

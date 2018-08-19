@@ -66,19 +66,30 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
       }
       $redirect_url = Url::fromRoute('commerce_culqi.dummy_redirect_302', [], ['absolute' => TRUE])->toString();
     }*/
-    $data = [
-      'return' => $form['#return_url'],
-      'cancel' => $form['#cancel_url'],
-      'total' => $payment->getAmount()->getNumber(),
-    ];
+    // $data = [
+    //   'return' => $form['#return_url'],
+    //   'cancel' => $form['#cancel_url'],
+    //   'total' => $payment->getAmount()->getNumber(),
+    // ];
 
     $order = $payment->getOrder();
     // $redirect_url = Url::fromRoute('commerce_culqi.dummy_redirect_post')->toString();
     // ksm($redirect_url);
 
 
-    
+    // ksm($order->getBillingProfile()->get('address')->given_name);
+    // ksm($order->getBillingProfile()->get('address')->family_name);
+    // ksm($order->getBillingProfile()->get('address')->address_line1);
+    // ksm($order->getBillingProfile()->get('address')->locality);
+    // ksm($order->getBillingProfile()->get('address')->administrative_area);
 
+    $address_client = array(
+      'name' => $order->getBillingProfile()->get('address')->given_name,
+      'last_name' => $order->getBillingProfile()->get('address')->family_name,
+      'address' => $order->getBillingProfile()->get('address')->address_line1,
+      'city' => $order->getBillingProfile()->get('address')->locality,
+      'province' => $order->getBillingProfile()->get('address')->administrative_area
+    );
     // $form = $this->buildRedirectForm($form, $form_state, $redirect_url, $data, $redirect_method);
     // ksm($form);
     if ($remove_js) {
@@ -101,8 +112,23 @@ class PaymentMethodAddForm extends BasePaymentOffsiteForm {
       'currency' => $payment->getAmount()->getCurrencyCode(),
       'description' => t('Order')." #".$order_id,
       'amount'=> ($payment->getAmount()->getNumber()*100),
-      'url_post' => "/commerce_culqi/dummy_redirect_post/42"
+      'url_post' => "/commerce_culqi/dummy_redirect_post/".$order_id,
+      'return' => $form['#return_url'],
+      'client' => $address_client
     ];
+
+    ksm($element);
+
+// $address = [
+//       'given_name' => 'A',
+//       'family_name' => 'A',
+//       'address_line1' => 'Dummy street',
+//       'postal_code' => '1234 AB',
+//       'locality' => 'Dummy city',
+//       'country_code' => 'NL',
+//     ];
+
+
     $element['#markup'] = $message;
 
     return $element;

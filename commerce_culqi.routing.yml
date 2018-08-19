@@ -8,11 +8,3 @@ commerce_culqi.dummy_redirect_post:
         type: entity:order
   requirements:
     _access: 'TRUE'
-commerce_culqi.dummy_redirect_302:
-  path: 'commerce_culqi/dummy_redirect_302'
-  defaults:
-    _controller: '\Drupal\commerce_culqi\Controller\CulqiRedirectController::on302'
-  options:
-    no_cache: TRUE
-  requirements:
-    _access: 'TRUE'
