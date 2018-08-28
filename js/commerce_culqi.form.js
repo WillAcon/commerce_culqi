@@ -83,13 +83,6 @@
                   };
 
                 jQuery.post(url_post, data).done(function(response){
-                      // console.log("response", response);
-                       // $('body').waitMe('hide');
-
-              // $response_data['validate'] = true;
-              // $response_data['txn_id'] = $param['id'];
-              // $response_data['authorization_code'] = $param['authorization_code'];
-              // $response_data['payment_status'] = $param['outcome']['type'];
 
                       if(response['validate']) {
                         // window.location.href = drupalSettings.commerceCulqi.return;
@@ -110,52 +103,6 @@
                 });
 
 
-            // $.ajax({
-            //     url: url_post,
-            //     data: JSON.stringify({
-            //         "source_id": Culqi.token.id,
-            //         "amount": drupalSettings.commerceCulqi.amount,
-            //         "currency_code": drupalSettings.commerceCulqi.currency,
-            //         "email": Culqi.token.email
-            //     }),
-            //     contentType: "application/json",
-            //     headers: {
-            //         "Accept": "application/json",
-            //     },
-            //     error: function (err) {
-            //         alert('Lo sentimos, a ocurrido un error');
-            //     },
-            //     dataType: 'json',
-            //     success: function (data) {
-            //         console.log("data", data);
-            //         // alert("pago exitoso")
-            //     },
-            //     type: 'POST'
-            // });
-
-           /* $.ajax({
-                url: 'https://api.culqi.com/v2/charges',
-                data: JSON.stringify({
-                    "source_id": Culqi.token.id,
-                    "amount": 3500,
-                    "currency_code": "PEN",
-                    "email": Culqi.token.email
-                }),
-                contentType: "application/json",
-                headers: {
-                    "Accept": "application/json",
-                    "authorization": "Bearer sk_test_zSx3B7eZVHivsFQy"
-                },
-                error: function (err) {
-                    alert('Lo sentimos, a ocurrido un error');
-                },
-                dataType: 'json',
-                success: function (data) {
-                    console.log(data);
-                    alert("pago exitoso")
-                },
-                type: 'POST'
-            });*/
 
         } else { // ¡Hubo algún problema!
             // Mostramos JSON de objeto error en consola
@@ -211,57 +158,3 @@ function run_waitMe(message){
         color:'#28d2c8'
       });
 }
-
-
-// function culqi(){
-
-//   console.log("Culqi",Culqi);
-// }
-
-//  jQuery.ajax({
-//                 url: "/commerce_culqi/dummy_redirect_post",
-//                 data: {
-//                     "source_id": "dddd",
-//                     "amount": 3500,
-//                     "currency_code": "PEN",
-//                     "email": "emqil"
-//                 },
-//                 contentType: "application/json",
-//                 headers: {
-//                     "Accept": "application/json",
-//                 },
-//                 error: function (err) {
-//                     alert('Lo sentimos, a ocurrido un error');
-//                 },
-//                 dataType: 'json',
-//                 success: function (data) {
-//                     console.log(data);
-// //                     alert("pago exitoso")
-//                 },
-//                 type: 'POST'
-//             });
-
-
- // jQuery(document).ajaxStart(function(){
- //            run_waitMe();
- //          });
-
- //                jQuery(".cancel-pay-culqi").click(function(){
- //        run_waitMe('Cancelando...');
- //      });
-
-
-
-
-
-          // var  data = {
-          //           "source_id": "ssss",
-          //           "amount": "ssss",
-          //           "currency_code": "ssss",
-          //           "email": "ssss",
-          //         };
-
-          //       jQuery.post(" /commerce_culqi/dummy_redirect_post", data).done(function(response){
-          //             console.log(response);
-          //             $('body').waitMe('hide');
-          //       });
