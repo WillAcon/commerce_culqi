@@ -32,7 +32,7 @@
     cardCvc: null,
 
     anotherFunction: function() {
-      console.log("funcion---");
+      // console.log("funcion---");
     },
 
     attach: function (context) {
@@ -60,7 +60,7 @@
       });
 
        function culqi() {
-        console.log("load culqi fun xxxxxxxxx");
+        // console.log("load culqi fun xxxxxxxxx");
 
         $(document).ajaxStart(function(){
               run_waitMe();
@@ -83,8 +83,30 @@
                   };
 
                 jQuery.post(url_post, data).done(function(response){
-                      console.log(response);
-                      $('body').waitMe('hide');
+                      // console.log("response", response);
+                       // $('body').waitMe('hide');
+
+              // $response_data['validate'] = true;
+              // $response_data['txn_id'] = $param['id'];
+              // $response_data['authorization_code'] = $param['authorization_code'];
+              // $response_data['payment_status'] = $param['outcome']['type'];
+
+                      if(response['validate']) {
+                        // window.location.href = drupalSettings.commerceCulqi.return;
+                        var data = {
+                          txn_id: response['txn_id'],
+                          authorization_code: response['authorization_code'],
+                          payment_status: response['payment_status'],
+                        }
+                        setTimeout(function() {
+                          jQuery.redirect(drupalSettings.commerceCulqi.return,data, "POST");   
+                        }, 100);
+                        
+                      }
+                      else {
+                        $('body').waitMe('hide');
+                        alert("Error al procesar el pago, vuelva a intentarlo por favor.");
+                      }
                 });
 
 
@@ -137,7 +159,7 @@
 
         } else { // ¡Hubo algún problema!
             // Mostramos JSON de objeto error en consola
-            console.log(Culqi.error);
+            // console.log(Culqi.error);
             alert(Culqi.error.mensaje);
         }
     };

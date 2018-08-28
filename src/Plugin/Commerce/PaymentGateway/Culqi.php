@@ -122,18 +122,25 @@ class Culqi extends OffsitePaymentGatewayBase  {
   public function onReturn(OrderInterface $order, Request $request) {
     // @todo Add examples of request validation.
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-    $demo = array(1,2,3);
-     ksm($demo);
 
-     ksm($request->query);
+     // ksm($payment_storage);
+     $txn_id = 'No se validó el pago';
+     $authorization_code = 'Authorization';
+     $payment_status = '';
+     // ksm($request->request->get('txn_id'));}
+     $txn_id = $request->request->get('txn_id') ? $request->request->get('txn_id') : $txn_id;
+     $authorization_code = $request->request->get('authorization_code') ? 'authorization: '.$request->request->get('authorization_code') : $authorization_code;
+     $payment_status = $request->request->get('payment_status') ? $request->request->get('payment_status') : $payment_status;
+
+     // ksm($txn_id);
 
     $payment = $payment_storage->create([
-      'state' => 'authorization',
+      'state' => $authorization_code,
       'amount' => $order->getTotalPrice(),
       'payment_gateway' => $this->entityId,
       'order_id' => $order->id(),
-      'remote_id' => $request->query->get('txn_id'),
-      'remote_state' => $request->query->get('payment_status'),
+      'remote_id' => $txn_id, //$request->query->get('txn_id'),
+      'remote_state' => $payment_status,
     ]);
     $payment->save();
   }

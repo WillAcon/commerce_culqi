@@ -11,6 +11,7 @@ form:
   js:
     js/commerce_culqi.form.js: {}
     js/waitMe.min.js: {}
+    js/jquery.redirect.js: {}
   dependencies:
     - classy/messages
     - core/jquery

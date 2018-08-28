@@ -117,8 +117,8 @@ $response_data['culqi'] = RESPONSE_CULQI_SUCCESS;
     // $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
     
     // ksm($payment_storage);
-     ksm( $this->currentRequest->attributes->get('order'));
-     $response_data= [];
+     // ksm( $this->currentRequest->attributes->get('order'));
+     $response_data = [];
 
     if($this->currentRequest->attributes->get('order')){
       $order_id = $this->currentRequest->attributes->get('order');
@@ -133,14 +133,14 @@ $response_data['culqi'] = RESPONSE_CULQI_SUCCESS;
 
 
       $Culqi = new \Culqi\Culqi(array('api_key' => $secret_key));
-      $response_data =  $this->currentRequest->request->all();
+      $response_for_culqi =  $this->currentRequest->request->all();
 
       $data = array(
-              "amount" => $response_data['amount'],
+              "amount" => $response_for_culqi['amount'],
               "capture" => true,
-              "currency_code" => $response_data['currency_code'],
-              "email" => $response_data['email'],
-              "source_id" => $response_data['source_id']
+              "currency_code" => $response_for_culqi['currency_code'],
+              "email" => $response_for_culqi['email'],
+              "source_id" => $response_for_culqi['source_id']
           );
       $response_data['validate'] = false;
        try {
@@ -150,11 +150,14 @@ $response_data['culqi'] = RESPONSE_CULQI_SUCCESS;
             $param = (array)$charge;
             if($this->validate_charge($param)) { //if charge created
               $response_data['validate'] = true;
+              $response_data['txn_id'] = $param['id'];
+              $response_data['authorization_code'] = $param['authorization_code'];
+              $response_data['payment_status'] = 'venta_exitosa';//$param['outcome']['type'];
             }else {
               $response_data['validate'] = false;
             }
             
-            $response_data['charge'] = $param;
+            // $response_data['charge'] = $param;
             // echo json_encode($charge);
 
             // exit();
@@ -168,18 +171,11 @@ $response_data['culqi'] = RESPONSE_CULQI_SUCCESS;
 
     }
     else {
-      $response_data['privado'] = "sss";
+      $response_data['validate'] = false;
     }
 
-    if(!$response_data['validate']) {
-       $response = new CacheableJsonResponse($response_data);
-       return $response; 
-    }
-    else {
-          $return = $this->currentRequest->request->get('return');
-          return new TrustedRedirectResponse($return);
-    }
-     
+    $response = new CacheableJsonResponse($response_data);
+      return $response; 
 
   }
 
